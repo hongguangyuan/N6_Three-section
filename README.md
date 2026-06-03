@@ -1,4 +1,4 @@
-# stm32N6_AI
+# N6
 
 Baseline STM32N6570-DK Makefile project for VS Code.
 
