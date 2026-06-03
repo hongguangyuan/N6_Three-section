@@ -35,7 +35,7 @@
 /* USER CODE BEGIN PD */
 #define LED_GPIO_PORT        GPIOO
 #define LED_GPIO_PIN         GPIO_PIN_1
-#define ENABLE_USART3_TEST   0U
+#define ENABLE_USART3_TEST   1U
 
 /* USER CODE END PD */
 
@@ -53,6 +53,7 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 #if (ENABLE_USART3_TEST != 0U)
 static uint8_t uart3_ready = 0U;
+static uint32_t led_toggle_count = 0U;
 #endif
 
 /* USER CODE END PV */
@@ -132,15 +133,19 @@ int main(void)
     /* USER CODE BEGIN 3 */
 #if (ENABLE_USART3_TEST != 0U)
     static uint32_t last_tick = 0;
-    static uint32_t hb_count = 0;
     uint8_t rx_ch = 0;
     char hb_msg[64];
 #endif
 
     HAL_GPIO_TogglePin(LED_GPIO_PORT, LED_GPIO_PIN);
-    HAL_Delay(500U);
 
 #if (ENABLE_USART3_TEST != 0U)
+    (void)snprintf(hb_msg, sizeof(hb_msg),
+                   "[AppNS] LED toggle %lu, PO1=%lu\r\n",
+                   (unsigned long)led_toggle_count++,
+                   (unsigned long)HAL_GPIO_ReadPin(LED_GPIO_PORT, LED_GPIO_PIN));
+    UART3_SendString(hb_msg);
+
     if ((uart3_ready != 0U) && (HAL_UART_Receive(&huart3, &rx_ch, 1, 10) == HAL_OK))
     {
       (void)HAL_UART_Transmit(&huart3, &rx_ch, 1, 100U);
@@ -149,10 +154,11 @@ int main(void)
     if ((HAL_GetTick() - last_tick) >= 1000U)
     {
       last_tick = HAL_GetTick();
-      (void)snprintf(hb_msg, sizeof(hb_msg), "[AppNS] heartbeat %lu\r\n", (unsigned long)hb_count++);
-      UART3_SendString(hb_msg);
+      UART3_SendString("[AppNS] heartbeat\r\n");
     }
 #endif
+
+    HAL_Delay(500U);
   }
   /* USER CODE END 3 */
 }

@@ -31,3 +31,7 @@ AppliNonSecure  0x70180000
 
 VS Code tasks in `.vscode/tasks.json` provide build, signing, and external
 flash programming commands for the local STM32CubeProgrammer/OpenOCD setup.
+
+## Notes
+
+- [STM32N6 VSCode Makefile bootchain debug notes](docs/STM32N6_VSCODE_MAKEFILE_BOOTCHAIN_DEBUG_NOTES.md)

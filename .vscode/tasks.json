@@ -380,6 +380,7 @@
             ],
             "dependsOn": "Sign: All",
             "problemMatcher": [],
+            "group": "build",
             "detail": "Sign and program external flash with the STM32N6570-DK external loader"
         },
         {

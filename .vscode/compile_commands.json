@@ -1,0 +1,17 @@
+[
+    {
+        "directory": "E:/VSCODE/n6/TEST_CMAKE/Makefile/FSBL",
+        "command": "arm-none-eabi-gcc -std=gnu11 -mcpu=cortex-m55 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -mcmse -DUSE_HAL_DRIVER -DSTM32N657xx -DNO_OTP_FUSE -I../../FSBL/Core/Inc -I../../Middlewares/ST/STM32_ExtMem_Manager -I../../Middlewares/ST/STM32_ExtMem_Manager/boot -I../../Middlewares/ST/STM32_ExtMem_Manager/nor_sfdp -I../../Middlewares/ST/STM32_ExtMem_Manager/sal -I../../Middlewares/ST/STM32_ExtMem_Manager/psram -I../../Middlewares/ST/STM32_ExtMem_Manager/sdcard -I../../Middlewares/ST/STM32_ExtMem_Manager/custom -I../../Middlewares/ST/STM32_ExtMem_Manager/user -I../../Drivers/STM32N6xx_HAL_Driver/Inc -I../../Drivers/CMSIS/Device/ST/STM32N6xx/Include -I../../Drivers/STM32N6xx_HAL_Driver/Inc/Legacy -I../../Drivers/CMSIS/Include -c ../../FSBL/Core/Src/main.c -o build/main.o",
+        "file": "E:/VSCODE/n6/TEST_CMAKE/FSBL/Core/Src/main.c"
+    },
+    {
+        "directory": "E:/VSCODE/n6/TEST_CMAKE/Makefile/AppliSecure",
+        "command": "arm-none-eabi-gcc -std=gnu11 -mcpu=cortex-m55 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -mcmse -DUSE_HAL_DRIVER -DSTM32N657xx -I../../AppliSecure/Core/Inc -I../../Secure_nsclib -I../../Drivers/STM32N6xx_HAL_Driver/Inc -I../../Drivers/CMSIS/Device/ST/STM32N6xx/Include -I../../Drivers/STM32N6xx_HAL_Driver/Inc/Legacy -I../../Drivers/CMSIS/Include -c ../../AppliSecure/Core/Src/main.c -o build/main.o",
+        "file": "E:/VSCODE/n6/TEST_CMAKE/AppliSecure/Core/Src/main.c"
+    },
+    {
+        "directory": "E:/VSCODE/n6/TEST_CMAKE/Makefile/AppliNonSecure",
+        "command": "arm-none-eabi-gcc -std=gnu11 -mcpu=cortex-m55 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -DUSE_HAL_DRIVER -DSTM32N657xx -I../../AppliNonSecure/Core/Inc -I../../Secure_nsclib -I../../Drivers/STM32N6xx_HAL_Driver/Inc -I../../Drivers/CMSIS/Device/ST/STM32N6xx/Include -I../../Drivers/STM32N6xx_HAL_Driver/Inc/Legacy -I../../Drivers/CMSIS/Include -c ../../AppliNonSecure/Core/Src/main.c -o build/main.o",
+        "file": "E:/VSCODE/n6/TEST_CMAKE/AppliNonSecure/Core/Src/main.c"
+    }
+]
