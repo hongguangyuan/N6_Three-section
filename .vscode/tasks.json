@@ -1,13 +1,11 @@
 {
     "version": "2.0.0",
-
     // Edit make parallel jobs only here, e.g. "-j8", "-j16"
     "options": {
         "env": {
             "MAKEFLAGS": "-j16"
         }
     },
-
     "tasks": [
         {
             "type": "shell",

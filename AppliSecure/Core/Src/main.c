@@ -189,7 +189,7 @@ static void NonSecure_Init(void)
   * @param None
   * @retval None
   */
-static void SystemIsolation_Config(void)
+  static void SystemIsolation_Config(void)
 {
 
   /* USER CODE BEGIN RIF_Init 0 */
@@ -227,7 +227,9 @@ static void SystemIsolation_Config(void)
   HAL_RIF_RISAF_ConfigBaseRegion(RISAF7, RISAF_REGION_1, &risaf_base_config);
 
   /* set up GPIO configuration */
+  /* GPIOD Non Secure Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  /* GPIOO Non Secure Ports Clock Enable */
   __HAL_RCC_GPIOO_CLK_ENABLE();
   HAL_GPIO_ConfigPinAttributes(GPIOD,GPIO_PIN_8,GPIO_PIN_NSEC);
   HAL_GPIO_ConfigPinAttributes(GPIOD,GPIO_PIN_9,GPIO_PIN_NSEC);
@@ -237,7 +239,6 @@ static void SystemIsolation_Config(void)
 
   /* USER CODE END RIF_Init 1 */
   /* USER CODE BEGIN RIF_Init 2 */
-
   /* USER CODE END RIF_Init 2 */
 
 }
@@ -331,8 +332,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

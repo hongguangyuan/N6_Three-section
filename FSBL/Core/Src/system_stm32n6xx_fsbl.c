@@ -96,7 +96,7 @@
 #endif /* HSI_VALUE */
 
 #if !defined  (MSI_VALUE)
-  #define MSI_VALUE       4000000UL /*!< Minimum value of the Low-power Internal oscillator in Hz */
+  #define MSI_VALUE       16000000UL /*!< Value of the Low-power Internal oscillator in Hz */
 #endif /* MSI_VALUE */
 
 #if !defined  (EXTERNAL_I2S_CLOCK_VALUE)
@@ -303,7 +303,7 @@ void SystemInit(void)
   *             With the HAL, HSI_VALUE is a constant defined in stm32n6xx_hal_conf.h file
   *             but the real value may vary depending on the variations in voltage and temperature.
   *
-  *        (**) MSI_VALUE default value is 4 MHz.
+  *        (**) MSI_VALUE configured value is 16 MHz.
   *             With the HAL, MSI_VALUE is a constant defined in stm32n6xx_hal_conf.h file
   *             but the real value may vary depending on the variations in voltage and temperature.
   *

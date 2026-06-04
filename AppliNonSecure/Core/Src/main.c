@@ -36,6 +36,7 @@
 #define LED_GPIO_PORT        GPIOO
 #define LED_GPIO_PIN         GPIO_PIN_1
 #define ENABLE_USART3_TEST   1U
+#define UART3_TX_TIMEOUT_MS  100U
 
 /* USER CODE END PD */
 
@@ -46,14 +47,14 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-#if (ENABLE_USART3_TEST != 0U)
 UART_HandleTypeDef huart3;
-#endif
 
 /* USER CODE BEGIN PV */
 #if (ENABLE_USART3_TEST != 0U)
 static uint8_t uart3_ready = 0U;
+static uint8_t uart3_init_failed = 0U;
 static uint32_t led_toggle_count = 0U;
+static char uart3_tx_buffer[64];
 #endif
 
 /* USER CODE END PV */
@@ -66,6 +67,7 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 #if (ENABLE_USART3_TEST != 0U)
 static void UART3_SendString(const char *str);
+static void UART3_MarkInitFailed(void);
 #endif
 
 /* USER CODE END PFP */
@@ -77,8 +79,20 @@ static void UART3_SendString(const char *str)
 {
   if (uart3_ready != 0U)
   {
-    (void)HAL_UART_Transmit(&huart3, (uint8_t *)str, (uint16_t)strlen(str), 100U);
+    if (HAL_UART_Transmit(&huart3,
+                          (uint8_t *)str,
+                          (uint16_t)strlen(str),
+                          UART3_TX_TIMEOUT_MS) != HAL_OK)
+    {
+      uart3_ready = 0U;
+    }
   }
+}
+
+static void UART3_MarkInitFailed(void)
+{
+  uart3_ready = 0U;
+  uart3_init_failed = 1U;
 }
 #endif
 
@@ -92,7 +106,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -106,7 +119,6 @@ int main(void)
 
   /* USER CODE END SysInit */
 
-  
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
 #if (ENABLE_USART3_TEST != 0U)
@@ -129,33 +141,37 @@ int main(void)
     
     /* USER CODE END WHILE */
 
-
     /* USER CODE BEGIN 3 */
 #if (ENABLE_USART3_TEST != 0U)
-    static uint32_t last_tick = 0;
     uint8_t rx_ch = 0;
-    char hb_msg[64];
+
+    if (uart3_init_failed != 0U)
+    {
+      HAL_GPIO_TogglePin(LED_GPIO_PORT, LED_GPIO_PIN);
+      HAL_Delay(80U);
+      continue;
+    }
 #endif
 
     HAL_GPIO_TogglePin(LED_GPIO_PORT, LED_GPIO_PIN);
 
 #if (ENABLE_USART3_TEST != 0U)
-    (void)snprintf(hb_msg, sizeof(hb_msg),
+    led_toggle_count++;
+    (void)snprintf(uart3_tx_buffer,
+                   sizeof(uart3_tx_buffer),
                    "[AppNS] LED toggle %lu, PO1=%lu\r\n",
-                   (unsigned long)led_toggle_count++,
+                   (unsigned long)led_toggle_count,
                    (unsigned long)HAL_GPIO_ReadPin(LED_GPIO_PORT, LED_GPIO_PIN));
-    UART3_SendString(hb_msg);
+    UART3_SendString(uart3_tx_buffer);
 
-    if ((uart3_ready != 0U) && (HAL_UART_Receive(&huart3, &rx_ch, 1, 10) == HAL_OK))
+    if ((uart3_ready != 0U) && (HAL_UART_Receive(&huart3, &rx_ch, 1, 0U) == HAL_OK))
     {
-      (void)HAL_UART_Transmit(&huart3, &rx_ch, 1, 100U);
+      if (HAL_UART_Transmit(&huart3, &rx_ch, 1, UART3_TX_TIMEOUT_MS) != HAL_OK)
+      {
+        uart3_ready = 0U;
+      }
     }
 
-    if ((HAL_GetTick() - last_tick) >= 1000U)
-    {
-      last_tick = HAL_GetTick();
-      UART3_SendString("[AppNS] heartbeat\r\n");
-    }
 #endif
 
     HAL_Delay(500U);
@@ -174,6 +190,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE BEGIN USART3_Init 0 */
   uart3_ready = 0U;
+  uart3_init_failed = 0U;
 
   /* USER CODE END USART3_Init 0 */
 
@@ -193,18 +210,22 @@ static void MX_USART3_UART_Init(void)
   huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   if (HAL_UART_Init(&huart3) != HAL_OK)
   {
+    UART3_MarkInitFailed();
     return;
   }
   if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
   {
+    UART3_MarkInitFailed();
     return;
   }
   if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
   {
+    UART3_MarkInitFailed();
     return;
   }
   if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
   {
+    UART3_MarkInitFailed();
     return;
   }
   /* USER CODE BEGIN USART3_Init 2 */
@@ -223,29 +244,29 @@ static void MX_USART3_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOO_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOO, GPIO_PIN_1, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PO1 */
-  GPIO_InitStruct.Pin = LED_GPIO_PIN;
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_GPIO_PORT, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOO, &GPIO_InitStruct);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
-
 /* USER CODE END 4 */
 
 /**
@@ -264,8 +285,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
